@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 
@@ -58,7 +59,40 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'name'      => 'required|string|max:100',
+            'email'     => 'required|email|unique:employees,email',
+            'position'  => 'required|string',
+            'salary'    => 'required|integer|min:2000000|max:50000000',
+            'status'    => 'sometimes|in:active,inactive', // optional
+            'hired_at'  => 'sometimes|date',               // optional
+        ]);
+
+        // Jika validasi gagal → 422
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        // Default status = active jika tidak dikirim
+        if (! isset($data['status'])) {
+            $data['status'] = 'active';
+        }
+
+        // Buat employee baru
+        $employee = Employee::create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Employee created successfully.',
+            'data'    => $employee,
+        ], 201);
     }
 
     /**
