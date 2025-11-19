@@ -66,7 +66,20 @@ class EmployeeController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $employee = Employee::find($id);
+
+        if (! $employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Employee not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Employee retrieved successfully.',
+            'data'    => $employee,
+        ], 200);
     }
 
     /**
