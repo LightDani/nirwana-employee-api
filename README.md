@@ -1,66 +1,270 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# **Employee REST API – Laravel 11 + SQLite**
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 📌 **Deskripsi**
 
-## About Laravel
+Project ini adalah REST API sederhana untuk mengelola data karyawan (**Employee**) menggunakan **Laravel 11** dan **SQLite**.
+API mendukung operasi CRUD, validasi input, filtering, searching, dan pagination.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Struktur response dirancang konsisten dan mudah digunakan pada sistem frontend.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ **Teknologi yang Digunakan**
 
-## Learning Laravel
+-   **Laravel 11.46.1**
+-   **PHP 8.2.12**
+-   **SQLite Database**
+-   **Composer**
+-   **Laravel HTTP API Resource Routing**
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 📁 **Struktur Data – Tabel `employees`**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Tabel `employees` dibuat melalui migration dan memiliki kolom:
 
-## Laravel Sponsors
+| Kolom      | Tipe          | Keterangan                              |
+| ---------- | ------------- | --------------------------------------- |
+| id         | bigIncrements | Primary key                             |
+| name       | string(100)   | Required                                |
+| email      | string        | Required, unique                        |
+| position   | string        | Required                                |
+| salary     | integer       | Required, min 2.000.000, max 50.000.000 |
+| status     | string        | active / inactive, default: active      |
+| hired_at   | date          | Optional                                |
+| created_at | timestamp     | Otomatis                                |
+| updated_at | timestamp     | Otomatis                                |
+| deleted_at | timestamp     | Soft delete                             |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 🚀 **Cara Menjalankan Project**
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### 1. Clone / Download Repo
 
-## Contributing
+```bash
+git clone https://github.com/LightDani/nirwana-employee-api.git
+cd nirwana-employee-api
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 2. Install Dependencies
 
-## Code of Conduct
+```bash
+composer install
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 3. Buat File SQLite
 
-## Security Vulnerabilities
+```bash
+touch database/database.sqlite
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Atau buat manual pada folder `database/`.
 
-## License
+### 4. Atur `.env` untuk SQLite
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Ubah konfigurasi database menjadi:
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
+
+### 5. Jalankan Migration
+
+```bash
+php artisan migrate
+```
+
+### 6. Jalankan Development Server
+
+```bash
+php artisan serve
+```
+
+Server tersedia di:
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+## 🧩 **Daftar Endpoint**
+
+### 📍 **1. GET /api/employees**
+
+Ambil daftar karyawan dengan pagination + filter + search.
+
+**Query Params Opsional:**
+
+-   `status=active|inactive`
+-   `search=<keyword>`
+-   `per_page=<number>`
+-   `page=<number>`
+
+**Contoh:**
+
+```
+GET /api/employees?status=active&search=budi&per_page=5
+```
+
+---
+
+### 📍 **2. GET /api/employees/{id}**
+
+Ambil detail 1 karyawan berdasarkan `id`.
+
+**Response:**
+
+-   `200 OK` jika ditemukan
+-   `404 Not Found` jika tidak ada
+
+---
+
+### 📍 **3. POST /api/employees**
+
+Tambah karyawan baru.
+
+**Body JSON:**
+
+```json
+{
+    "name": "Budi",
+    "email": "budi@example.com",
+    "position": "Staff",
+    "salary": 3000000,
+    "status": "active",
+    "hired_at": "2024-01-10"
+}
+```
+
+**Rules Validasi:**
+
+-   name: required, string, max:100
+-   email: required, valid email, unique
+-   position: required
+-   salary: integer, min 2000000, max 50000000
+-   status: active/inactive (optional)
+-   hired_at: date (optional)
+
+**Response:**
+
+-   `201 Created`
+-   `422 Validation Error`
+
+---
+
+### 📍 **4. PUT /api/employees/{id}**
+
+Update data karyawan.
+
+**Catatan:**
+
+-   Email harus unique kecuali untuk dirinya sendiri.
+
+**Response:**
+
+-   `200 OK`
+-   `422 Validation Error`
+-   `404 Not Found`
+
+---
+
+### 📍 **5. DELETE /api/employees/{id}**
+
+Menghapus data karyawan (**soft delete**).
+
+**Response:**
+
+-   `200 OK`
+-   `404 Not Found`
+
+---
+
+## 📦 **Contoh Response Sukses**
+
+### **GET /api/employees**
+
+```json
+{
+    "success": true,
+    "message": "Employee list retrieved successfully.",
+    "data": [
+        {
+            "id": 1,
+            "name": "Budi",
+            "email": "budi@example.com",
+            "position": "Staff",
+            "salary": 3000000,
+            "status": "active",
+            "hired_at": "2024-01-10",
+            "created_at": "2024-02-01T12:00:00",
+            "updated_at": "2024-02-01T12:00:00"
+        }
+    ],
+    "meta": {
+        "current_page": 1,
+        "per_page": 10,
+        "total": 1,
+        "last_page": 1,
+        "from": 1,
+        "to": 1
+    }
+}
+```
+
+---
+
+## 🛡️ **Error Formats**
+
+### **Validasi Gagal (422)**
+
+```json
+{
+    "success": false,
+    "message": "Validation failed.",
+    "errors": {
+        "email": ["The email field must be a valid email address."]
+    }
+}
+```
+
+### **404 Not Found**
+
+```json
+{
+    "success": false,
+    "message": "Employee not found."
+}
+```
+
+---
+
+## 📘 **Struktur Project (Ringkas)**
+
+```
+app/
+ └── Http/
+     └── Controllers/
+         └── EmployeeController.php
+database/
+ ├── database.sqlite
+ └── migrations/
+routes/
+ ├── api.php
+ └── web.php
+bootstrap/
+ └── app.php (registrasi route API)
+```
+
+---
+
+## 🙌 **Fitur Tambahan**
+
+-   Soft delete (`deleted_at`)
+-   Pagination + Metadata lengkap
+-   Pencarian fleksibel (`LIKE %keyword%`)
+-   Struktur JSON konsisten untuk seluruh endpoint
+
+---
