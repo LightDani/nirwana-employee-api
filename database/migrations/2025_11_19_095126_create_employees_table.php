@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('status')->default('active'); // active / inactive
             $table->date('hired_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
