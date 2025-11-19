@@ -168,6 +168,20 @@ class EmployeeController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $employee = Employee::find($id);
+
+        if (! $employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Employee not found.',
+            ], 404);
+        }
+
+        $employee->delete(); // soft delete
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Employee deleted successfully.',
+        ], 200);
     }
 }
