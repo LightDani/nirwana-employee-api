@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('position');
             $table->integer('salary');
-            $table->string('status')->default('active'); // active / inactive
+            $table->string('status')->default('active');
             $table->date('hired_at')->nullable();
             $table->timestamps();
             $table->softDeletes();

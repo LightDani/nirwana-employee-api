@@ -3,34 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * GET /api/employees
+     * List employees dengan pagination + filter + search
      */
     public function index(Request $request)
     {
-        // base query
         $query = Employee::query();
 
-        // filter by status (active / inactive) jika ada ?status=
+        // Filter status (active / inactive)
         if ($status = $request->query('status')) {
             $query->where('status', $status);
         }
 
-        // filter search di name / email jika ada ?search=
+        // Search di name / email
         if ($search = $request->query('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                ->orWhere('email', 'like', '%' . $search . '%');
+                  ->orWhere('email', 'like', '%' . $search . '%');
             });
         }
 
-        // pagination: default 10 per page, bisa override pakai ?per_page=xx
+        // Pagination (default 10)
         $perPage = (int) $request->query('per_page', 10);
         if ($perPage <= 0) {
             $perPage = 10;
@@ -38,12 +38,11 @@ class EmployeeController extends Controller
 
         $employees = $query->paginate($perPage);
 
-        // response JSON rapi
         return response()->json([
             'success' => true,
             'message' => 'Employee list retrieved successfully.',
-            'data' => $employees->items(),
-            'meta' => [
+            'data'    => $employees->items(),
+            'meta'    => [
                 'current_page' => $employees->currentPage(),
                 'per_page'     => $employees->perPage(),
                 'total'        => $employees->total(),
@@ -55,21 +54,20 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * POST /api/employees
+     * Tambah employee baru
      */
     public function store(Request $request)
     {
-        // Validasi input
         $validator = Validator::make($request->all(), [
             'name'      => 'required|string|max:100',
             'email'     => 'required|email|unique:employees,email',
             'position'  => 'required|string',
             'salary'    => 'required|integer|min:2000000|max:50000000',
-            'status'    => 'sometimes|in:active,inactive', // optional
-            'hired_at'  => 'sometimes|date',               // optional
+            'status'    => 'sometimes|in:active,inactive',
+            'hired_at'  => 'sometimes|date',
         ]);
 
-        // Jika validasi gagal → 422
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -85,7 +83,6 @@ class EmployeeController extends Controller
             $data['status'] = 'active';
         }
 
-        // Buat employee baru
         $employee = Employee::create($data);
 
         return response()->json([
@@ -96,7 +93,8 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * GET /api/employees/{id}
+     * Ambil detail 1 employee
      */
     public function show(string $id)
     {
@@ -117,11 +115,11 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * PUT /api/employees/{id}
+     * Update employee
      */
     public function update(Request $request, string $id)
     {
-        // Cari employee
         $employee = Employee::find($id);
 
         if (! $employee) {
@@ -131,14 +129,13 @@ class EmployeeController extends Controller
             ], 404);
         }
 
-        // Validasi input
         $validator = Validator::make($request->all(), [
             'name'      => 'required|string|max:100',
             'email'     => 'required|email|unique:employees,email,' . $employee->id,
             'position'  => 'required|string',
             'salary'    => 'required|integer|min:2000000|max:50000000',
-            'status'    => 'sometimes|in:active,inactive', // optional
-            'hired_at'  => 'sometimes|date',               // optional
+            'status'    => 'sometimes|in:active,inactive',
+            'hired_at'  => 'sometimes|date',
         ]);
 
         if ($validator->fails()) {
@@ -151,9 +148,6 @@ class EmployeeController extends Controller
 
         $data = $validator->validated();
 
-        // Jangan paksa default status di update:
-        // kalau tidak dikirim, biarkan nilai lama tetap
-
         $employee->update($data);
 
         return response()->json([
@@ -164,7 +158,8 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * DELETE /api/employees/{id}
+     * Soft delete employee
      */
     public function destroy(string $id)
     {

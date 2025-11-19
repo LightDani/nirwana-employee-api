@@ -10,12 +10,6 @@ class Employee extends Model
 {
     use HasFactory, SoftDeletes;
 
-    // Secara default Laravel sudah pakai tabel 'employees',
-    // jadi tidak wajib mendefinisikan $table kecuali nama tabel beda
-
-    /**
-     * Field yang bisa diisi mass assignment (create/update).
-     */
     protected $fillable = [
         'name',
         'email',
@@ -25,11 +19,8 @@ class Employee extends Model
         'hired_at',
     ];
 
-    /**
-     * Casting field ke tipe tertentu.
-     */
     protected $casts = [
-        'hired_at' => 'date',       // jadi instance Carbon (Y-m-d)
+        'hired_at' => 'date',
         'salary'   => 'integer',
     ];
 }
