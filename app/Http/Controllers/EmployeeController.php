@@ -121,7 +121,46 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Cari employee
+        $employee = Employee::find($id);
+
+        if (! $employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Employee not found.',
+            ], 404);
+        }
+
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'name'      => 'required|string|max:100',
+            'email'     => 'required|email|unique:employees,email,' . $employee->id,
+            'position'  => 'required|string',
+            'salary'    => 'required|integer|min:2000000|max:50000000',
+            'status'    => 'sometimes|in:active,inactive', // optional
+            'hired_at'  => 'sometimes|date',               // optional
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        // Jangan paksa default status di update:
+        // kalau tidak dikirim, biarkan nilai lama tetap
+
+        $employee->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Employee updated successfully.',
+            'data'    => $employee,
+        ], 200);
     }
 
     /**
